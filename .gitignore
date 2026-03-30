@@ -1,0 +1,32 @@
+# MovieFizz - .gitignore
+
+# Sensitive Configuration
+includes/config.php
+
+# Personal/Environment Files
+.env
+.DS_Store
+Thumbs.db
+*.log
+
+# Uploaded Content
+uploads/movies/*
+uploads/posters/*
+uploads/backdrops/*
+uploads/subtitles/*
+uploads/audio/*
+uploads/progress/*
+
+# Preserve directory structure
+!uploads/.gitkeep
+!uploads/movies/.gitkeep
+!uploads/posters/.gitkeep
+!uploads/backdrops/.gitkeep
+!uploads/subtitles/.gitkeep
+!uploads/audio/.gitkeep
+!uploads/progress/.gitkeep
+
+# System/Cache
+tmp/*
+!tmp/.gitkeep
+.phpunit.result.cache
