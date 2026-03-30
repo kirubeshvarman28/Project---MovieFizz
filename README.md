@@ -126,13 +126,30 @@ Railway is excellent for this project as it handles both the code and the databa
 - ✅ Real MySQL database included.
 - ✅ High performance.
 
-### 4. Render (Reliable Free PHP Hosting)
-Free shared hosting with no ads.
-- **FFmpeg Support**: ❌ No.
-- **Difficulty**: Easy (Upload via FTP, use cPanel).
-- **Limitation**: You won't be able to use the "Auto-Extract Subtitles/Audio" feature.
+### 4. InfinityFree (Permanent Free Hosting)
+InfinityFree is a great choice for long-term free hosting if you don't need FFmpeg.
 
-### 4. Render / Railway / 000webhost
+#### Step-by-Step Setup:
+1. **Sign Up**: Register at [InfinityFree.com](https://www.infinityfree.com/) and create a new hosting account.
+2. **Database Setup**:
+   - Go to your **Control Panel** > **MySQL Databases**.
+   - Create a new database and note down the **DB Host** (e.g., `sql123.epizy.com`), **User**, and **Password**.
+3. **Upload Files**:
+   - Use an **FTP Client** (like FileZilla) or the **Online File Manager**.
+   - Upload all project files into the `htdocs` folder.
+4. **Import SQL**:
+   - Open **phpMyAdmin** from the Control Panel.
+   - Select your database and click the **Import** tab.
+   - Upload and run `database.sql` and `expansion_schema.sql`.
+5. **Configure Site**:
+   - Edit `includes/config.php` in the file manager.
+   - Enter your InfinityFree DB credentials and update the `SITE_URL` to your new domain.
+
+#### Note:
+- ❌ **FFmpeg**: The "Auto-Extract Subtitles/Audio" feature will **not work** here.
+- ✅ **Stability**: This is a great, permanent home for the frontend and movie database.
+
+### 5. Render / Railway / 000webhost
 Other options for hosting PHP, but they often have strict resource limits or requires a credit card even for free tiers.
 
 ---
