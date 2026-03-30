@@ -100,12 +100,31 @@ The `e2-micro` instance is free in some US regions.
 - **FFmpeg Support**: ✅ Yes.
 - **Difficulty**: Moderate.
 
-### 3. Railway (Easiest Database Support)
-Railway is excellent for this project because it has **built-in MySQL**.
-- **FFmpeg Support**: ✅ Yes (I've added a `nixpacks.toml` to support it).
-- **Database**: Add a MySQL service in the same project; it works instantly.
-- **Setup**: Connect your GitHub repo and Railway will auto-detect everything.
-- **Difficulty**: Very Easy.
+### 3. Railway (Recommended Choice)
+Railway is excellent for this project as it handles both the code and the database in one place.
+
+#### Step-by-Step Setup:
+1. **GitHub Import**: Log in to [Railway.app](https://railway.app/) and click **New Project** > **Deploy from GitHub Repo** > Select `Project---MovieFizz`.
+2. **Add MySQL**: Click **New** > **Database** > **Add MySQL**. This adds a dedicated database service to your project.
+3. **Environment Variables**: 
+   - Click on your **web service** (the one from GitHub) > **Variables** tab.
+   - Click **New Variable** and add the following (copy these exact names):
+     - `DB_HOST`: `${{MySQL.MYSQLHOST}}`
+     - `DB_NAME`: `${{MySQL.MYSQLDATABASE}}`
+     - `DB_USER`: `${{MySQL.MYSQLUSER}}`
+     - `DB_PASS`: `${{MySQL.MYSQLPASSWORD}}`
+     - `TMDB_API_KEY`: (Your TMDB API Key)
+     - `APIFY_TOKEN`: (Your Apify Token)
+4. **Import Database**:
+   - Go to the **MySQL service** > **Connect** tab.
+   - Copy the "Command Line" connection string.
+   - On your local machine, run: `mysql -h [host] -u [user] -p[pass] [dbname] < database.sql` (Replace brackets with details from the Connect tab).
+5. **Done!**: Railway will auto-redeploy, and your site will be live at the provided URL.
+
+#### Pros:
+- ✅ FFmpeg is auto-installed (via `nixpacks.toml`).
+- ✅ Real MySQL database included.
+- ✅ High performance.
 
 ### 4. Render (Reliable Free PHP Hosting)
 Free shared hosting with no ads.
