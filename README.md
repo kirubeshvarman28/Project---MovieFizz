@@ -100,7 +100,15 @@ The `e2-micro` instance is free in some US regions.
 - **FFmpeg Support**: ✅ Yes.
 - **Difficulty**: Moderate.
 
-### 3. InfinityFree (Easiest)
+### 3. Render (Reliable Free PHP Hosting)
+Render is a great alternative to Vercel for PHP apps.
+- **FFmpeg Support**: ✅ Yes (Use a `render.yaml` or custom build command).
+- **Setup**: Connect your GitHub repo, choose "Web Service", and select the PHP environment.
+- **Database**: Render offers a free PostgreSQL/MySQL (limited to 30 days on free tier).
+- **Pros**: Persistent server (doesn't have the serverless limits of Vercel).
+- **Cons**: Free tier "sleeps" after 15 mins of inactivity.
+
+### 4. InfinityFree (Easiest)
 Free shared hosting with no ads.
 - **FFmpeg Support**: ❌ No.
 - **Difficulty**: Easy (Upload via FTP, use cPanel).
