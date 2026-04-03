@@ -2,6 +2,8 @@
 
 MovieFizz is a high-performance movie streaming application built with Core PHP, MySQL, and Vanilla JavaScript. Optimized for **InfinityFree** and other shared hosting environments, it features a modern Netflix-style interface, automated TMDB integration, and a sophisticated Terabox video resolver.
 
+**🌐 Live Demo:** [https://moviefizz.xo.je](https://moviefizz.xo.je)
+
 ## 🎥 Visual Preview
 
 ![Homepage Preview](assets/img/readme/homepage.png)
@@ -98,4 +100,4 @@ Because MovieFizz uses a **flattened structure**, installation is simpler than e
 ---
 
 ## 📄 License
-This project is for educational and personal use.
+This project is licensed and reserved by [Kirubesh Varman](https://github.com/kirubeshvarman28). All rights reserved.
