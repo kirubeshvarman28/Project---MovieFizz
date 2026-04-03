@@ -1,6 +1,6 @@
 <?php
 // Common Functions
-require_once 'terabox_resolver.php';
+require_once INCLUDES_PATH . '/terabox_resolver.php';
 
 // Redirect helper
 function redirect($url) {
@@ -58,7 +58,7 @@ function is_maintenance_mode() {
     return ($mode == 1);
 }
 
-require_once __DIR__ . '/class.simple_smtp.php';
+require_once INCLUDES_PATH . '/class.simple_smtp.php';
 
 // Send Email Notification to Admin
 function send_admin_notification($subject, $message, $from_email = '') {
@@ -84,6 +84,8 @@ function send_admin_notification($subject, $message, $from_email = '') {
     </body>
     </html>";
 
+    $from_email = $from_email ?: ((!empty($settings['smtp_user']) && strpos($settings['smtp_user'], '@') !== false) ? $settings['smtp_user'] : ("noreply@" . ($host ?: 'moviefizz.com')));
+
     if (!empty($settings['smtp_host'])) {
         $mailer = new SimpleSMTP(
             $settings['smtp_host'], 
@@ -95,7 +97,7 @@ function send_admin_notification($subject, $message, $from_email = '') {
         return $mailer->send($admin_email, $site_name, $subject, $html_message, $from_email);
     }
 
-    $headers = "From: " . $site_name . " <noreply@" . ($host ?: 'moviefizz.com') . ">\r\n";
+    $headers = "From: " . $site_name . " <$from_email>\r\n";
     if (!empty($from_email)) $headers .= "Reply-To: $from_email\r\n";
     $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
     
@@ -109,19 +111,42 @@ function send_user_email($to, $subject, $message) {
     $site_url = SITE_URL;
     $host = parse_url($site_url, PHP_URL_HOST);
 
+    // Cleaner, more transactional template
     $html_message = "
+    <!DOCTYPE html>
     <html>
-    <body style='font-family: Arial, sans-serif; background: #000; color: #fff; padding: 20px;'>
-        <div style='background: #141414; padding: 30px; border-radius: 12px; border: 1px solid #333;'>
-            <h2 style='color: #E50914; margin-top: 0;'>$site_name</h2>
-            <div style='color: #ccc; line-height: 1.6;'>
-                $message
-            </div>
-            <hr style='border: 0; border-top: 1px solid #333; margin: 20px 0;'>
-            <small style='color: #666;'>Security notification from $site_name.</small>
-        </div>
+    <head>
+        <meta charset='UTF-8'>
+        <title>$subject</title>
+    </head>
+    <body style='margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f4f4; color: #333;'>
+        <table width='100%' border='0' cellspacing='0' cellpadding='0' style='background-color: #f4f4f4; padding: 20px;'>
+            <tr>
+                <td align='center'>
+                    <table width='600' border='0' cellspacing='0' cellpadding='0' style='background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05);'>
+                        <tr>
+                            <td style='padding: 40px 40px 20px 40px; text-align: center;'>
+                                <h1 style='color: #E50914; margin: 0; font-size: 28px;'>$site_name</h1>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style='padding: 0 40px 40px 40px; line-height: 1.6; font-size: 16px; color: #555;'>
+                                $message
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style='padding: 20px; background-color: #fafafa; text-align: center; font-size: 12px; color: #999;'>
+                                &copy; " . date('Y') . " $site_name. All rights reserved.
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
     </body>
     </html>";
+
+    $from_email = (!empty($settings['smtp_user']) && strpos($settings['smtp_user'], '@') !== false) ? $settings['smtp_user'] : ("noreply@" . ($host ?: 'moviefizz.com'));
 
     if (!empty($settings['smtp_host'])) {
         $mailer = new SimpleSMTP(
@@ -131,10 +156,11 @@ function send_user_email($to, $subject, $message) {
             $settings['smtp_pass'], 
             $settings['smtp_crypto']
         );
-        return $mailer->send($to, $site_name, $subject, $html_message);
+        return $mailer->send($to, $site_name, $subject, $html_message, $from_email);
     }
 
-    $headers = "From: " . $site_name . " <noreply@" . ($host ?: 'moviefizz.com') . ">\r\n";
+    $headers = "From: " . $site_name . " <$from_email>\r\n";
+    $headers .= "MIME-Version: 1.0\r\n";
     $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
     return @mail($to, $subject, $html_message, $headers);
 }
@@ -151,6 +177,8 @@ function fetch_from_api($url) {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'MovieFizz/1.0 (PHP)');
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
     $response = curl_exec($ch);
     
     if (curl_errno($ch)) {
@@ -170,6 +198,7 @@ function download_image($url, $save_path) {
     curl_setopt($ch, CURLOPT_HEADER, 0);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'MovieFizz/1.0 (PHP)');
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
     $success = curl_exec($ch);
     curl_close($ch);
@@ -337,7 +366,7 @@ function resolve_media_url($url) {
             foreach (['stream', 'download'] as $key) {
                 if ($data[$key]) {
                     if (strpos($data[$key], 'terabox') !== false || strpos($data[$key], '1024tera') !== false) {
-                        $res[$key] = '../includes/proxy_terabox.php?url=' . urlencode($data[$key]);
+                        $res[$key] = 'includes/proxy_terabox.php?url=' . urlencode($data[$key]);
                     } else {
                         $res[$key] = $data[$key];
                     }
@@ -358,7 +387,19 @@ function get_cloud_player_url($id, $type = 'movie', $season = 1, $episode = 1, $
     
     $auto_param = ($autoplay == 1) ? "?autoplay=1" : "";
 
-    if ($provider === 'vidsrc') {
+    if ($provider === 'superembed') {
+        if ($type === 'movie') {
+            return "https://vidsrc.cc/v2/embed/movie/$id";
+        } elseif ($type === 'tv') {
+            return "https://vidsrc.cc/v2/embed/tv/$id/$season/$episode";
+        }
+    } elseif ($provider === 'vidlink') {
+        if ($type === 'movie') {
+            return "https://vidlink.pro/movie/$id" . $auto_param;
+        } elseif ($type === 'tv') {
+            return "https://vidlink.pro/tv/$id/$season/$episode" . $auto_param;
+        }
+    } elseif ($provider === 'vidsrc') {
         if ($type === 'movie') {
             return "https://vidsrc.icu/embed/movie/$id" . $auto_param;
         } elseif ($type === 'tv') {
@@ -392,6 +433,6 @@ function send_media_request_notification($data) {
     <p>Please upload this content as soon as possible.</p>
     ";
     
-    return send_admin_notification($subject, $message);
+    return send_admin_notification($subject, $message, $user_email);
 }
 ?>

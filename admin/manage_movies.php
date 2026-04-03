@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/db_connect.php';
-require_once '../includes/functions.php';
+require_once realpath(__DIR__ . '/../includes/db_connect.php');
+require_once INCLUDES_PATH . '/functions.php';
 
 if (!is_admin()) redirect('login.php');
 
@@ -35,7 +35,7 @@ $page_title = "Movies";
 $msg = $_GET['msg'] ?? '';
 $error_type = $_GET['error'] ?? '';
 
-include 'includes/header.php';
+include INCLUDES_PATH . '/header.php';
 
 ?>
 
@@ -229,4 +229,4 @@ include 'includes/header.php';
         .dropdown-content a:hover { background-color: #333; }
         .show { display: block; }
     </style>
-<?php include 'includes/footer.php'; ?>
+<?php include INCLUDES_PATH . '/footer.php'; ?>

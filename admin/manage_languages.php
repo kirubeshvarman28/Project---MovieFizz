@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/db_connect.php';
-require_once '../includes/functions.php';
+require_once realpath(__DIR__ . '/../includes/db_connect.php');
+require_once INCLUDES_PATH . '/functions.php';
 
 if (!is_admin()) redirect('login.php');
 
@@ -44,7 +44,7 @@ $stmt = $pdo->query("SELECT * FROM languages ORDER BY name ASC");
 $languages = $stmt->fetchAll();
 
 $page_title = "Manage Languages";
-include 'includes/header.php';
+include INCLUDES_PATH . '/header.php';
 
 
 // Handle Sync
@@ -129,4 +129,4 @@ if (isset($_POST['sync_tmdb'])) {
             </table>
         </div>
     </div>
-<?php include 'includes/footer.php'; ?>
+<?php include INCLUDES_PATH . '/footer.php'; ?>

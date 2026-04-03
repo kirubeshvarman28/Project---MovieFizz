@@ -1,11 +1,11 @@
 <?php
-require_once '../includes/db_connect.php';
-require_once '../includes/functions.php';
+require_once realpath(__DIR__ . '/../includes/db_connect.php');
+require_once INCLUDES_PATH . '/functions.php';
 
 if (!is_admin()) redirect('login.php');
 
 $page_title = "Sports";
-include 'includes/header.php';
+include INCLUDES_PATH . '/header.php';
 ?>
 
 <div class="top-nav">
@@ -19,4 +19,4 @@ include 'includes/header.php';
     <div class="status-badge published" style="display:inline-block; margin-top:20px;"><i class="fas fa-check-circle"></i> Module Active</div>
 </div>
 
-<?php include 'includes/footer.php'; ?>
+<?php include INCLUDES_PATH . '/footer.php'; ?>

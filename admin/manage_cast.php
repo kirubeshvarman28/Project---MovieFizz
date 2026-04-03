@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/db_connect.php';
-require_once '../includes/functions.php';
+require_once realpath(__DIR__ . '/../includes/db_connect.php');
+require_once INCLUDES_PATH . '/functions.php';
 
 if (!is_admin()) redirect('login.php');
 
@@ -31,7 +31,7 @@ $stmt = $pdo->query("SELECT * FROM cast_crew ORDER BY id DESC");
 $cast_list = $stmt->fetchAll();
 
 $page_title = "Manage Cast & Crew";
-include 'includes/header.php';
+include INCLUDES_PATH . '/header.php';
 
 ?>
 
@@ -70,4 +70,4 @@ include 'includes/header.php';
             </table>
         </div>
     </div>
-<?php include 'includes/footer.php'; ?>
+<?php include INCLUDES_PATH . '/footer.php'; ?>

@@ -99,8 +99,9 @@ document.querySelectorAll('.carousel-wrapper').forEach(wrapper => {
 const watchlistBtn = document.getElementById('watchlist_btn');
 if (watchlistBtn) {
     watchlistBtn.addEventListener('click', function() {
-        const movieId = this.getAttribute('data-id');
-        fetch('watchlist_ajax.php?movie_id=' + movieId)
+        const mediaId = this.getAttribute('data-id');
+        const mediaType = this.getAttribute('data-type') || 'movie';
+        fetch(`watchlist_ajax.php?media_id=${mediaId}&media_type=${mediaType}`)
             .then(res => res.json())
             .then(data => {
                 if (data.status === 'added') {
@@ -175,7 +176,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 7. Netflix-Style Player Logic
     initNetflixPlayer();
+
+    // 8. Standard Source Selector Logic (for iframe players)
+    initSourceSelector();
 });
+
+function initSourceSelector() {
+    const sourceBtns = document.querySelectorAll('.source-btn');
+    sourceBtns.forEach(btn => {
+        btn.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const url = this.getAttribute('data-url');
+            const type = this.getAttribute('data-type');
+            
+            // --- UI Visuals ---
+            document.querySelectorAll('.source-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            // --- Player Detection & Source Updating ---
+            // 1. Check for standard iframe player (.player-container)
+            const standardIframe = document.querySelector('.player-container iframe');
+            
+            // 2. Check for Netflix-Style Player modal container (#mediaContainer)
+            const mediaContainer = document.querySelector('#mediaContainer');
+            
+            // Logic to update whichever player is present
+            if (mediaContainer) {
+                // If switching to an iframe-based source
+                if (type === 'cloud' || type === 'embed' || url.includes('vidrock.net') || url.includes('vidsrc.cc') || url.includes('vidlink.pro') || url.includes('<iframe')) {
+                    mediaContainer.innerHTML = `<iframe src="${url}" style="width:100%; height:100%; border:none;" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+                } else {
+                    // Update video tag
+                    let video = mediaContainer.querySelector('video');
+                    if (video) {
+                        video.src = url;
+                        video.load();
+                        video.play().catch(e => console.log('Autoplay blocked:', e));
+                    } else {
+                        // Replace container with video tag if it was an iframe
+                        mediaContainer.innerHTML = `<video id="mainVideo" src="${url}" preload="metadata" style="width:100%; height:100%; object-fit:contain;"></video>`;
+                        mediaContainer.querySelector('video').play();
+                    }
+                }
+            } else if (standardIframe) {
+                // Simple update for the standard player-container
+                standardIframe.src = url;
+            }
+        };
+    });
+}
 
 function initNetflixPlayer() {
     const player = document.querySelector('.netflix-player');

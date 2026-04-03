@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/db_connect.php';
-require_once '../includes/functions.php';
+require_once realpath(__DIR__ . '/../includes/db_connect.php');
+require_once INCLUDES_PATH . '/functions.php';
 
 if (!is_admin()) redirect('login.php');
 
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
                             if (in_array($ext, ['mp4', 'mkv', 'webm', 'avi', 'mov'])) {
                                 $name = time() . "_source_edit_$index." . $ext;
-                                if (move_uploaded_file($_FILES['source_files']['tmp_name'][$index], '../uploads/movies/' . $name)) {
+                                if (move_uploaded_file($_FILES['source_files']['tmp_name'][$index], 'uploads/movies/' . $name)) {
                                     $surl = 'uploads/movies/' . $name;
                                     $needs_extraction = true; $video_to_extract = $surl;
                                 }
@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
                             if (in_array($ext, ['vtt', 'srt'])) {
                                 $name = time() . "_sub_edit_$index." . $ext;
-                                if (move_uploaded_file($_FILES['sub_files']['tmp_name'][$index], '../uploads/subtitles/' . $name)) {
+                                if (move_uploaded_file($_FILES['sub_files']['tmp_name'][$index], 'uploads/subtitles/' . $name)) {
                                     $surl = 'uploads/subtitles/' . $name;
                                 }
                             }
@@ -115,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
                             if (in_array($ext, ['mp3', 'm4a', 'aac', 'wav'])) {
                                 $name = time() . "_audio_edit_$index." . $ext;
-                                if (move_uploaded_file($_FILES['audio_files']['tmp_name'][$index], '../uploads/audio/' . $name)) {
+                                if (move_uploaded_file($_FILES['audio_files']['tmp_name'][$index], 'uploads/audio/' . $name)) {
                                     $aurl = 'uploads/audio/' . $name;
                                 }
                             }
@@ -151,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $page_title = "Edit Movie: " . ($movie['title'] ?? '');
-include 'includes/header.php';
+include INCLUDES_PATH . '/header.php';
 ?>
 
 <style>
@@ -452,4 +452,4 @@ include 'includes/header.php';
 </script>
 <?php endif; ?>
 
-<?php include 'includes/footer.php'; ?>
+<?php include INCLUDES_PATH . '/footer.php'; ?>

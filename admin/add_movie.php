@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/db_connect.php';
-require_once '../includes/functions.php';
+require_once realpath(__DIR__ . '/../includes/db_connect.php');
+require_once INCLUDES_PATH . '/functions.php';
 
 if (!is_admin()) redirect('login.php');
 
@@ -8,6 +8,10 @@ $success = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $dirs = [UPLOADS_PATH . '/posters', UPLOADS_PATH . '/backdrops', UPLOADS_PATH . '/movies'];
+    foreach ($dirs as $dir) { if (!is_dir($dir)) @mkdir($dir, 0755, true); }
+
+    try {
     $title = clean_input($_POST['title']);
     $description = clean_input($_POST['description']);
     $genre = clean_input($_POST['genre']);
@@ -25,14 +29,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_FILES['poster_file']) && $_FILES['poster_file']['error'] == 0) {
         $ext = pathinfo($_FILES['poster_file']['name'], PATHINFO_EXTENSION);
         $name = time() . '_poster.' . $ext;
-        move_uploaded_file($_FILES['poster_file']['tmp_name'], '../uploads/posters/' . $name);
+        move_uploaded_file($_FILES['poster_file']['tmp_name'], UPLOADS_PATH . '/posters/' . $name);
         $poster_path = 'uploads/posters/' . $name;
     } elseif (!empty($_POST['poster_url'])) {
         $poster_url = $_POST['poster_url'];
         if (strpos($poster_url, 'image.tmdb.org') !== false) {
             $ext = pathinfo($poster_url, PATHINFO_EXTENSION) ?: 'jpg';
             $name = time() . '_poster.' . $ext;
-            if (download_image($poster_url, '../uploads/posters/' . $name)) {
+            if (download_image($poster_url, UPLOADS_PATH . '/posters/' . $name)) {
                 $poster_path = 'uploads/posters/' . $name;
             } else {
                 $poster_path = clean_input($poster_url);
@@ -46,14 +50,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_FILES['backdrop_file']) && $_FILES['backdrop_file']['error'] == 0) {
         $ext = pathinfo($_FILES['backdrop_file']['name'], PATHINFO_EXTENSION);
         $name = time() . '_backdrop.' . $ext;
-        move_uploaded_file($_FILES['backdrop_file']['tmp_name'], '../uploads/backdrops/' . $name);
+        move_uploaded_file($_FILES['backdrop_file']['tmp_name'], UPLOADS_PATH . '/backdrops/' . $name);
         $backdrop_path = 'uploads/backdrops/' . $name;
     } elseif (!empty($_POST['backdrop_url'])) {
         $backdrop_url = $_POST['backdrop_url'];
         if (strpos($backdrop_url, 'image.tmdb.org') !== false) {
             $ext = pathinfo($backdrop_url, PATHINFO_EXTENSION) ?: 'jpg';
             $name = time() . '_backdrop.' . $ext;
-            if (download_image($backdrop_url, '../uploads/backdrops/' . $name)) {
+            if (download_image($backdrop_url, UPLOADS_PATH . '/backdrops/' . $name)) {
                 $backdrop_path = 'uploads/backdrops/' . $name;
             } else {
                 $backdrop_path = clean_input($backdrop_url);
@@ -84,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if ($stype === 'file' && isset($_FILES['source_files']['name'][$index]) && $_FILES['source_files']['error'][$index] == 0) {
                         $ext = strtolower(pathinfo($_FILES['source_files']['name'][$index], PATHINFO_EXTENSION));
                         $name = time() . "_movie_source_$index." . $ext;
-                        if (move_uploaded_file($_FILES['source_files']['tmp_name'][$index], '../uploads/movies/' . $name)) {
+                        if (move_uploaded_file($_FILES['source_files']['tmp_name'][$index], UPLOADS_PATH . '/movies/' . $name)) {
                             $surl = 'uploads/movies/' . $name;
                             $needs_extraction = true; $video_to_extract = $surl;
                         }
@@ -133,13 +137,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header("Location: manage_movies.php?success=1");
                 exit;
             }
-        } else {
-            $error = "Failed to add movie.";
+            }
         }
+    } catch (Exception $e) {
+        $error = "Failed to add movie: " . $e->getMessage();
     }
 }
 $page_title = "Add New Movie";
-include 'includes/header.php';
+include INCLUDES_PATH . '/header.php';
 ?>
 
 <style>
@@ -369,7 +374,7 @@ include 'includes/header.php';
                         const div = document.createElement('div');
                         div.style.textAlign = 'center';
                         div.style.minWidth = '80px';
-                        const img = person.profile_path ? `https://image.tmdb.org/t/p/w200${person.profile_path}` : '../assets/img/no-cast.png';
+                        const img = person.profile_path ? `https://image.tmdb.org/t/p/w200${person.profile_path}` : 'assets/img/no-cast.png';
                         div.innerHTML = `
                             <img src="${img}" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid var(--primary-color);">
                             <p style="font-size:10px; margin-top:5px; color:#ccc;">${person.name.split(' ')[0]}</p>
@@ -395,7 +400,7 @@ include 'includes/header.php';
             list.innerHTML = '';
             results.forEach(item => {
                 const year = item.release_date ? item.release_date.split('-')[0] : 'N/A';
-                const poster = item.poster_path ? 'https://image.tmdb.org/t/p/w200' + item.poster_path : '../assets/img/no-poster.png';
+                const poster = item.poster_path ? 'https://image.tmdb.org/t/p/w200' + item.poster_path : 'assets/img/no-poster.png';
                 const div = document.createElement('div');
                 div.className = 'tmdb-item';
                 div.innerHTML = `
@@ -775,4 +780,4 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <?php endif; ?>
 
-<?php include 'includes/footer.php'; ?>
+<?php include INCLUDES_PATH . '/footer.php'; ?>

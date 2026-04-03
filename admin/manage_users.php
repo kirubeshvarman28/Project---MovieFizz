@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/db_connect.php';
-require_once '../includes/functions.php';
+require_once realpath(__DIR__ . '/../includes/db_connect.php');
+require_once INCLUDES_PATH . '/functions.php';
 
 if (!is_admin()) redirect('login.php');
 
@@ -25,7 +25,7 @@ $stmt = $pdo->query("SELECT * FROM users WHERE role = 'user' ORDER BY created_at
 $users = $stmt->fetchAll();
 
 $page_title = "User Management";
-include 'includes/header.php';
+include INCLUDES_PATH . '/header.php';
 ?>
 
 <div class="top-nav">
@@ -63,7 +63,16 @@ include 'includes/header.php';
             <tbody>
                 <?php foreach ($users as $u): ?>
                 <tr>
-                    <td><strong><?php echo $u['username']; ?></strong></td>
+                    <td style="display: flex; align-items: center; gap: 12px;">
+                        <?php if(!empty($u['profile_pic'])): ?>
+                            <img src="<?php echo $u['profile_pic']; ?>" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 1px solid var(--primary);">
+                        <?php else: ?>
+                            <div style="width: 35px; height: 35px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--primary);">
+                                <?php echo strtoupper(substr($u['username'], 0, 1)); ?>
+                            </div>
+                        <?php endif; ?>
+                        <strong><?php echo $u['username']; ?></strong>
+                    </td>
                     <td><?php echo $u['email']; ?></td>
                     <td><span style="color:#aaa; font-size:12px;"><?php echo ucfirst($u['role']); ?></span></td>
                     <td><?php echo date('M d, Y', strtotime($u['created_at'])); ?></td>
@@ -81,4 +90,4 @@ include 'includes/header.php';
     </div>
 </div>
 
-<?php include 'includes/footer.php'; ?>
+<?php include INCLUDES_PATH . '/footer.php'; ?>

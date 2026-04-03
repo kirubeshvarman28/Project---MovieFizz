@@ -4,7 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $page_title ?? 'Admin Panel'; ?> - MovieFizz</title>
-    <link rel="stylesheet" href="../assets/css/admin_style.css">
+    <?php
+    $settings = get_all_settings();
+    $site_name = $settings['site_name'] ?? SITE_NAME;
+    $site_logo = $settings['site_logo'] ?? '';
+    $site_icon = $settings['site_icon'] ?? '';
+    ?>
+    <?php if(!empty($site_icon)): ?>
+    <link rel="icon" href="<?php echo $site_icon; ?>" type="image/x-icon">
+    <?php endif; ?>
+    <link rel="stylesheet" href="<?php echo SITE_URL; ?>/admin/assets/css/admin_style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         /* Custom Deletion Modal */
@@ -135,8 +144,26 @@
             if(deleteCallback) deleteCallback();
             closeDeleteModal();
         });
+
+        // Mobile Sidebar Toggle Logic
+        function toggleSidebar() {
+            document.body.classList.toggle('sidebar-open');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add hamburger to top-nav if exists
+            const topNavLeft = document.querySelector('.top-nav .nav-left');
+            if (topNavLeft) {
+                const burger = document.createElement('div');
+                burger.className = 'mobile-hamburger';
+                burger.style.display = 'none'; // Controlled by CSS media queries
+                burger.innerHTML = '<i class="fas fa-bars"></i>';
+                burger.onclick = toggleSidebar;
+                topNavLeft.prepend(burger);
+            }
+        });
     </script>
 
     <div class="admin-wrapper">
-        <?php include 'sidebar.php'; ?>
+        <?php include INCLUDES_PATH . '/sidebar.php'; ?>
         <main class="main-content">

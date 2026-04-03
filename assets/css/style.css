@@ -143,6 +143,21 @@ button {
     }
 }
 
+@media (max-width: 768px) {
+    .navbar {
+        height: 60px;
+    }
+    :root {
+        --header-height: 60px;
+    }
+    .logo {
+        font-size: 18px;
+    }
+    .nav-left {
+        gap: 15px;
+    }
+}
+
 .nav-right {
     display: flex;
     align-items: center;
@@ -265,6 +280,19 @@ button {
 
 .user-menu:hover {
     background: rgba(255, 255, 255, 0.05);
+}
+
+@media (max-width: 600px) {
+    .user-menu span {
+        display: none; /* Hide username on small screens */
+    }
+    .user-menu {
+        padding: 4px;
+        gap: 0;
+    }
+    .nav-right {
+        gap: 8px;
+    }
 }
 
 .user-menu .user-avatar {
@@ -881,7 +909,7 @@ main.container {
 }
 
 .player-section .source-selector {
-    display: none;
+    display: flex;
 }
 
 /* Cast Carousel */
@@ -1515,7 +1543,14 @@ main.container {
     }
 
     .detail-hero {
-        height: 50vh;
+        height: auto;
+        min-height: 400px;
+        padding-top: calc(var(--header-height) + 20px);
+        background-position: center center;
+    }
+    
+    .detail-hero .detail-info {
+        padding-bottom: 20px;
     }
 
     .desktop-nav {
@@ -1910,4 +1945,91 @@ main.container {
 }
 .modal-close:hover {
     color: var(--primary);
+}
+/* === Authentication Restrictor (Login to Watch) === */
+.login-to-watch {
+    background: #000;
+    width: 100%;
+    aspect-ratio: 16/9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 24px;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-to-watch::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(229, 9, 20, 0.15) 0%, transparent 70%);
+}
+
+.login-to-watch .lock-icon {
+    font-size: 64px;
+    color: var(--primary);
+    filter: drop-shadow(0 0 20px var(--primary-glow));
+    z-index: 1;
+}
+
+.login-to-watch h3 {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0;
+    z-index: 1;
+    letter-spacing: -0.5px;
+}
+
+.login-to-watch p {
+    color: var(--text-secondary);
+    max-width: 500px;
+    font-size: 18px;
+    line-height: 1.6;
+    margin: 0;
+    z-index: 1;
+}
+
+.login-to-watch .auth-buttons {
+    display: flex;
+    gap: 20px;
+    z-index: 1;
+}
+
+.login-to-watch .btn-play, 
+.login-to-watch .btn-more-info {
+    min-width: 160px;
+    justify-content: center;
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .login-to-watch {
+        aspect-ratio: auto;
+        min-height: 400px;
+        padding: 30px 20px;
+    }
+    .login-to-watch .lock-icon {
+        font-size: 48px;
+    }
+    .login-to-watch h3 {
+        font-size: 24px;
+    }
+    .login-to-watch p {
+        font-size: 15px;
+    }
+    .login-to-watch .auth-buttons {
+        flex-direction: column;
+        width: 100%;
+        gap: 12px;
+    }
+    .login-to-watch .auth-buttons a {
+        width: 100%;
+    }
 }

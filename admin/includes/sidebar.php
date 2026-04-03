@@ -1,12 +1,19 @@
 <!-- Admin Sidebar -->
 <aside class="admin-sidebar">
     <div class="sidebar-header">
-        <h1><?php echo SITE_NAME; ?></h1>
+        <?php if(!empty($site_logo)): ?>
+            <img src="<?php echo $site_logo; ?>" alt="<?php echo $site_name; ?>" style="max-height: 50px; width: auto; margin-bottom: 10px;">
+        <?php else: ?>
+            <h1><?php echo htmlspecialchars($site_name); ?></h1>
+        <?php endif; ?>
     </div>
     <nav class="sidebar-nav">
         <ul>
             <li class="<?php echo(basename($_SERVER['PHP_SELF']) == 'dashboard.php') ? 'active' : ''; ?>">
                 <a href="dashboard.php"><i class="fas fa-th-large"></i> <span>Dashboard</span></a>
+            </li>
+            <li class="<?php echo(basename($_SERVER['PHP_SELF']) == 'manage_requests.php') ? 'active' : ''; ?>">
+                <a href="manage_requests.php"><i class="fas fa-bullhorn"></i> <span>Media Requests</span></a>
             </li>
             <li class="<?php echo(basename($_SERVER['PHP_SELF']) == 'import_tmdb.php') ? 'active' : ''; ?>">
                 <a href="import_tmdb.php" style="color: #ffc107;"><i class="fas fa-cloud-upload-alt"></i> <span>Cloud Importer</span></a>

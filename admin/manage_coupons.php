@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/db_connect.php';
-require_once '../includes/functions.php';
+require_once realpath(__DIR__ . '/../includes/db_connect.php');
+require_once INCLUDES_PATH . '/functions.php';
 
 if (!is_admin()) redirect('login.php');
 
@@ -35,7 +35,7 @@ $stmt = $pdo->query("SELECT * FROM coupons ORDER BY id DESC");
 $coupons = $stmt->fetchAll();
 
 $page_title = "Coupons & Offers";
-include 'includes/header.php';
+include INCLUDES_PATH . '/header.php';
 ?>
 
 <div class="top-nav">
@@ -121,4 +121,4 @@ include 'includes/header.php';
     </div>
 </div>
 
-<?php include 'includes/footer.php'; ?>
+<?php include INCLUDES_PATH . '/footer.php'; ?>

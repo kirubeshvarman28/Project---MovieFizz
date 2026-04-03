@@ -1,6 +1,6 @@
 <?php
 // Database Connection
-require_once 'config.php';
+require_once __DIR__ . '/config.php';
 
 try {
     $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4";

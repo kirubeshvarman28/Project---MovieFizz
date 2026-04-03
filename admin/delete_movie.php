@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/db_connect.php';
-require_once '../includes/functions.php';
+require_once realpath(__DIR__ . '/../includes/db_connect.php');
+require_once INCLUDES_PATH . '/functions.php';
 
 if (!is_admin()) redirect('login.php');
 
@@ -14,7 +14,7 @@ if (isset($_GET['id'])) {
     
     if ($movie) {
         // Delete files if they are local
-        if (strpos($movie['poster'], 'uploads/') === 0) @unlink('../' . $movie['poster']);
+        if (strpos($movie['poster'], 'uploads/') === 0) @unlink($movie['poster']);
         if (strpos($movie['backdrop'], 'uploads/') === 0) @unlink('../' . $movie['backdrop']);
         if (strpos($movie['video_url'], 'uploads/') === 0) @unlink('../' . $movie['video_url']);
         

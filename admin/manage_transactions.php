@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/db_connect.php';
-require_once '../includes/functions.php';
+require_once realpath(__DIR__ . '/../includes/db_connect.php');
+require_once INCLUDES_PATH . '/functions.php';
 
 if (!is_admin()) redirect('login.php');
 
@@ -32,7 +32,7 @@ $stmt->execute($params);
 $transactions = $stmt->fetchAll();
 
 $page_title = "Billing & Transactions";
-include 'includes/header.php';
+include INCLUDES_PATH . '/header.php';
 ?>
 
 <div class="top-nav">
@@ -113,4 +113,4 @@ include 'includes/header.php';
     }
 </script>
 
-<?php include 'includes/footer.php'; ?>
+<?php include INCLUDES_PATH . '/footer.php'; ?>

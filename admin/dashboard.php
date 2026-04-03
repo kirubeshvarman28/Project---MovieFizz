@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/db_connect.php';
-require_once '../includes/functions.php';
+require_once realpath(__DIR__ . '/../includes/db_connect.php');
+require_once INCLUDES_PATH . '/functions.php';
 
 // Check admin auth
 if (!is_admin()) {
@@ -21,7 +21,7 @@ $stmt = $pdo->query("SELECT * FROM users WHERE role = 'user' ORDER BY created_at
 $recent_users = $stmt->fetchAll();
 
 $page_title = "Admin Dashboard";
-include 'includes/header.php';
+include INCLUDES_PATH . '/header.php';
 ?>
 
 <div class="top-nav">
@@ -112,4 +112,4 @@ include 'includes/header.php';
     </div>
 </div>
 
-<?php include 'includes/footer.php'; ?>
+<?php include INCLUDES_PATH . '/footer.php'; ?>

@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/db_connect.php';
-require_once '../includes/functions.php';
+require_once realpath(__DIR__ . '/../includes/db_connect.php');
+require_once INCLUDES_PATH . '/functions.php';
 
 if (!is_admin()) redirect('login.php');
 
@@ -62,7 +62,7 @@ $success = ''; $error = '';
                         $allowed = ['mp4', 'mkv', 'webm', 'avi', 'mov'];
                         if (in_array($ext, $allowed)) {
                             $name = time() . "_ep_source_edit_$index." . $ext;
-                            if (move_uploaded_file($_FILES['source_files']['tmp_name'][$index], '../uploads/movies/' . $name)) {
+                            if (move_uploaded_file($_FILES['source_files']['tmp_name'][$index], 'uploads/movies/' . $name)) {
                                 $surl = 'uploads/movies/' . $name;
                                 $needs_extraction = true;
                                 $video_to_extract = $surl;
@@ -93,7 +93,7 @@ $success = ''; $error = '';
                     if ($stype === 'file' && isset($_FILES['sub_files']['name'][$index]) && $_FILES['sub_files']['error'][$index] == 0) {
                         $ext = strtolower(pathinfo($_FILES['sub_files']['name'][$index], PATHINFO_EXTENSION));
                         $name = time() . "_ep_sub_edit_$index." . $ext;
-                        if (move_uploaded_file($_FILES['sub_files']['tmp_name'][$index], '../uploads/subtitles/' . $name)) {
+                        if (move_uploaded_file($_FILES['sub_files']['tmp_name'][$index], 'uploads/subtitles/' . $name)) {
                             $surl = 'uploads/subtitles/' . $name;
                         }
                     }
@@ -118,7 +118,7 @@ $success = ''; $error = '';
                     if ($atype === 'file' && isset($_FILES['audio_files']['name'][$index]) && $_FILES['audio_files']['error'][$index] == 0) {
                         $ext = strtolower(pathinfo($_FILES['audio_files']['name'][$index], PATHINFO_EXTENSION));
                         $name = time() . "_ep_audio_edit_$index." . $ext;
-                        if (move_uploaded_file($_FILES['audio_files']['tmp_name'][$index], '../uploads/audio/' . $name)) {
+                        if (move_uploaded_file($_FILES['audio_files']['tmp_name'][$index], 'uploads/audio/' . $name)) {
                             $aurl = 'uploads/audio/' . $name;
                         }
                     }
@@ -146,7 +146,7 @@ $success = ''; $error = '';
     }
 
 $page_title = "Edit Episode";
-include 'includes/header.php';
+include INCLUDES_PATH . '/header.php';
 
 ?>
 
@@ -564,4 +564,4 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <?php endif; ?>
 
-<?php include 'includes/footer.php'; ?>
+<?php include INCLUDES_PATH . '/footer.php'; ?>

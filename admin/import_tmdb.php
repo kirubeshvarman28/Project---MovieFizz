@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/db_connect.php';
-require_once '../includes/functions.php';
+require_once realpath(__DIR__ . '/../includes/db_connect.php');
+require_once INCLUDES_PATH . '/functions.php';
 
 if (!is_admin())
     redirect('login.php');
@@ -12,7 +12,7 @@ $error = '';
 
 // Helper to ensure directories exist
 function ensure_upload_dirs() {
-    $root = __DIR__ . '/..';
+    $root = __DIR__;
     $dirs = [
         $root . '/uploads/posters', 
         $root . '/uploads/backdrops', 
@@ -20,13 +20,14 @@ function ensure_upload_dirs() {
     ];
     foreach ($dirs as $dir) {
         if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
+            @mkdir($dir, 0755, true);
         }
     }
 }
 
 // Handle Import Request
 if (isset($_POST['import'])) {
+    @set_time_limit(600); // Try to increase time limit to 10 minutes
     ensure_upload_dirs();
     $tmdb_id = $_POST['tmdb_id'];
     $type = $_POST['type']; // 'movie' or 'tv'
@@ -47,6 +48,7 @@ if (isset($_POST['import'])) {
             }
         }
 
+    try {
         if ($type === 'movie') {
             // Import Movie
             $title = clean_input($data['title']);
@@ -63,13 +65,13 @@ if (isset($_POST['import'])) {
             if (!empty($data['poster_path'])) {
                 $p_url = "https://image.tmdb.org/t/p/w500" . $data['poster_path'];
                 $p_name = time() . "_" . md5($p_url) . "_poster.jpg";
-                if (download_image($p_url, '../uploads/posters/' . $p_name))
+                if (download_image($p_url, 'uploads/posters/' . $p_name))
                     $poster = 'uploads/posters/' . $p_name;
             }
             if (!empty($data['backdrop_path'])) {
                 $b_url = "https://image.tmdb.org/t/p/original" . $data['backdrop_path'];
                 $b_name = time() . "_" . md5($b_url) . "_backdrop.jpg";
-                if (download_image($b_url, '../uploads/backdrops/' . $b_name))
+                if (download_image($b_url, 'uploads/backdrops/' . $b_name))
                     $backdrop = 'uploads/backdrops/' . $b_name;
             }
 
@@ -77,8 +79,17 @@ if (isset($_POST['import'])) {
             if ($stmt->execute([$tmdb_id, $title, $desc, $genres, $rating, $year, $runtime, $lang, $poster, $backdrop, $trailer_url])) {
                 $movie_id = $pdo->lastInsertId();
 
-                // Add Cloud Source
-                $pdo->prepare("INSERT INTO movie_sources (movie_id, label, source_type, source_url) VALUES (?, 'Cloud Server', 'cloud', 'https://vidrock.net/movie/$tmdb_id')")->execute([$movie_id]);
+                // Add Cloud Sources based on Settings
+                $settings = get_all_settings();
+                if ($settings['player_vidrock'] ?? 1) {
+                    $pdo->prepare("INSERT INTO movie_sources (movie_id, label, source_type, source_url) VALUES (?, 'VidRock', 'cloud', 'https://vidrock.net/movie/$tmdb_id')")->execute([$movie_id]);
+                }
+                if ($settings['player_superembed'] ?? 1) {
+                    $pdo->prepare("INSERT INTO movie_sources (movie_id, label, source_type, source_url) VALUES (?, 'SuperEmbed', 'cloud', 'https://vidsrc.cc/v2/embed/movie/$tmdb_id')")->execute([$movie_id]);
+                }
+                if ($settings['player_vidlink'] ?? 1) {
+                    $pdo->prepare("INSERT INTO movie_sources (movie_id, label, source_type, source_url) VALUES (?, 'VidLink', 'cloud', 'https://vidlink.pro/movie/$tmdb_id')")->execute([$movie_id]);
+                }
 
                 // Import Cast
                 if (isset($data['credits']['cast'])) {
@@ -119,13 +130,13 @@ if (isset($_POST['import'])) {
             if (!empty($data['poster_path'])) {
                 $p_url = "https://image.tmdb.org/t/p/w500" . $data['poster_path'];
                 $p_name = time() . "_" . md5($p_url) . "_tv_poster.jpg";
-                if (download_image($p_url, '../uploads/posters/' . $p_name))
+                if (download_image($p_url, 'uploads/posters/' . $p_name))
                     $poster = 'uploads/posters/' . $p_name;
             }
             if (!empty($data['backdrop_path'])) {
                 $b_url = "https://image.tmdb.org/t/p/original" . $data['backdrop_path'];
                 $b_name = time() . "_" . md5($b_url) . "_tv_backdrop.jpg";
-                if (download_image($b_url, '../uploads/backdrops/' . $b_name))
+                if (download_image($b_url, 'uploads/backdrops/' . $b_name))
                     $backdrop = 'uploads/backdrops/' . $b_name;
             }
 
@@ -179,26 +190,37 @@ if (isset($_POST['import'])) {
                                 $e_desc = clean_input($e['overview']);
                                 $e_tmdb_id = $e['id'];
 
-                                // Episode Image Fetching
+                                // Optimized: Only download episode image if it's a small number of episodes
+                                // On free hosting, downloading hundreds of images in one go will fail.
                                 $e_poster = '';
                                 if (!empty($e['still_path'])) {
-                                    $ep_img_url = "https://image.tmdb.org/t/p/w500" . $e['still_path'];
-                                    $ep_img_name = time() . "_ep_{$e_tmdb_id}.jpg";
-                                    if (download_image($ep_img_url, '../uploads/episodes/' . $ep_img_name)) $e_poster = 'uploads/episodes/' . $ep_img_name;
+                                    $e_poster = "https://image.tmdb.org/t/p/w500" . $e['still_path'];
                                 }
 
                                 $stmt_e = $pdo->prepare("INSERT INTO episodes (season_id, episode_number, title, description, video_url, tmdb_id, poster) VALUES (?, ?, ?, ?, 'cloud', ?, ?)");
                                 $stmt_e->execute([$season_id, $e_num, $e_title, $e_desc, $e_tmdb_id, $e_poster]);
                                 $episode_id = $pdo->lastInsertId();
 
-                                // Add Cloud Source
-                                $pdo->prepare("INSERT INTO episode_sources (episode_id, label, source_type, source_url) VALUES (?, 'Cloud Server', 'cloud', 'https://vidrock.net/tv/$tmdb_id/$s_num/$e_num')")->execute([$episode_id]);
+                                // Add Cloud Sources based on Settings
+                                $settings = get_all_settings();
+                                if ($settings['player_vidrock'] ?? 1) {
+                                    $pdo->prepare("INSERT INTO episode_sources (episode_id, label, source_type, source_url) VALUES (?, 'VidRock', 'cloud', 'https://vidrock.net/tv/$tmdb_id/$s_num/$e_num')")->execute([$episode_id]);
+                                }
+                                if ($settings['player_superembed'] ?? 1) {
+                                    $pdo->prepare("INSERT INTO episode_sources (episode_id, label, source_type, source_url) VALUES (?, 'SuperEmbed', 'cloud', 'https://vidsrc.cc/v2/embed/tv/$tmdb_id/$s_num/$e_num')")->execute([$episode_id]);
+                                }
+                                if ($settings['player_vidlink'] ?? 1) {
+                                    $pdo->prepare("INSERT INTO episode_sources (episode_id, label, source_type, source_url) VALUES (?, 'VidLink', 'cloud', 'https://vidlink.pro/tv/$tmdb_id/$s_num/$e_num')")->execute([$episode_id]);
+                                }
                             }
                         }
                     }
                 }
             }
         }
+    } catch (Exception $e) {
+        $error = "Import failed: " . $e->getMessage();
+    }
     }
     else {
         $error = "Failed to fetch data from TMDB.";
@@ -206,7 +228,7 @@ if (isset($_POST['import'])) {
 }
 
 $page_title = "Cloud Importer";
-include 'includes/header.php';
+include INCLUDES_PATH . '/header.php';
 ?>
 
 <!-- NATIVE ADMIN HEADER -->
@@ -397,20 +419,21 @@ document.getElementById('tmdb-search-input').addEventListener('keypress', functi
     text-overflow: ellipsis;
 }
 
-/* Spinner style if not in global css */
-.spinner-border {
-    display: inline-block;
-    width: 2rem;
-    height: 2rem;
-    vertical-align: text-bottom;
-    border: .25em solid currentColor;
-    border-right-color: transparent;
-    border-radius: 50%;
-    animation: spinner-border .75s linear infinite;
-}
-@keyframes spinner-border {
-    to { transform: rotate(360deg); }
+@media (max-width: 768px) {
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 15px !important;
+    }
+    .filter-bar select {
+        width: 100%;
+    }
+    .movie-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        padding: 15px !important;
+    }
 }
 </style>
 
-<?php include 'includes/footer.php'; ?>
+<?php include INCLUDES_PATH . '/footer.php'; ?>

@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/db_connect.php';
-require_once '../includes/functions.php';
+require_once realpath(__DIR__ . '/../includes/db_connect.php');
+require_once INCLUDES_PATH . '/functions.php';
 
 if (!is_admin()) redirect('login.php');
 
@@ -39,7 +39,7 @@ if ($show_id) {
     $seasons = $stmt->fetchAll();
 }
 
-include 'includes/header.php';
+include INCLUDES_PATH . '/header.php';
 ?>
 
 <div class="top-nav">
@@ -114,7 +114,7 @@ include 'includes/header.php';
             <?php endif; ?>
         </div>
     </div>
-<?php include 'includes/footer.php'; ?>
+<?php include INCLUDES_PATH . '/footer.php'; ?>
 
 <script>
         // Searchable Select Logic
@@ -178,4 +178,4 @@ include 'includes/header.php';
         }
 </script>
 
-<?php include 'includes/footer.php'; ?>
+<?php include INCLUDES_PATH . '/footer.php'; ?>

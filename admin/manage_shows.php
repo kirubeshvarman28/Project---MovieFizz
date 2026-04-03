@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/db_connect.php';
-require_once '../includes/functions.php';
+require_once realpath(__DIR__ . '/../includes/db_connect.php');
+require_once INCLUDES_PATH . '/functions.php';
 
 if (!is_admin()) redirect('login.php');
 
@@ -9,6 +9,10 @@ $success = '';
 
 // Add TV Show
 if (isset($_POST['add_show'])) {
+    $dirs = [UPLOADS_PATH . '/posters', UPLOADS_PATH . '/backdrops'];
+    foreach ($dirs as $dir) { if (!is_dir($dir)) @mkdir($dir, 0755, true); }
+
+    try {
     $tmdb_id = clean_input($_POST['tmdb_id']);
     $title = clean_input($_POST['title']);
     $description = clean_input($_POST['description']);
@@ -23,14 +27,14 @@ if (isset($_POST['add_show'])) {
         if (strpos($poster, 'image.tmdb.org') !== false) {
             $ext = pathinfo($poster, PATHINFO_EXTENSION) ?: 'jpg';
             $p_name = time() . '_poster.' . $ext;
-            if (download_image($poster, '../uploads/posters/' . $p_name)) {
+            if (download_image($poster, UPLOADS_PATH . '/posters/' . $p_name)) {
                 $poster = 'uploads/posters/' . $p_name;
             }
         }
         if (strpos($backdrop, 'image.tmdb.org') !== false) {
             $ext = pathinfo($backdrop, PATHINFO_EXTENSION) ?: 'jpg';
             $b_name = time() . '_backdrop.' . $ext;
-            if (download_image($backdrop, '../uploads/backdrops/' . $b_name)) {
+            if (download_image($backdrop, UPLOADS_PATH . '/backdrops/' . $b_name)) {
                 $backdrop = 'uploads/backdrops/' . $b_name;
             }
         }
@@ -78,12 +82,11 @@ if (isset($_POST['add_show'])) {
                         $pdo->prepare("INSERT IGNORE INTO tv_show_cast (tv_show_id, cast_id, role) VALUES (?, ?, ?)")->execute([$show_id, $cast_id, $c['character'] ?? '']);
                     }
                 }
+                }
             }
-        } else {
-            $error = "Failed to add TV Show.";
         }
-    } else {
-        $error = "Title is required.";
+    } catch (Exception $e) {
+        $error = "Failed to add series: " . $e->getMessage();
     }
 }
 
@@ -102,7 +105,7 @@ $msg = $_GET['msg'] ?? '';
 $err_type = $_GET['error'] ?? '';
 
 $page_title = "TV Shows";
-include 'includes/header.php';
+include INCLUDES_PATH . '/header.php';
 ?>
 
 <div class="top-nav">
@@ -226,7 +229,7 @@ include 'includes/header.php';
                             if (strpos($poster_src, 'http') === 0) {
                                 $img_url = $poster_src;
                             } else {
-                                $img_url = '../' . $poster_src;
+                                $img_url = SITE_URL . '/' . $poster_src;
                             }
                         ?>
                         <img src="<?php echo $img_url; ?>" width="50" height="75" style="border-radius:4px; object-fit:cover;">
@@ -280,7 +283,7 @@ function populateShowForm(data) {
             const div = document.createElement('div');
             div.style.textAlign = 'center';
             div.style.minWidth = '80px';
-            const img = person.profile_path ? `https://image.tmdb.org/t/p/w200${person.profile_path}` : '../assets/img/no-cast.png';
+            const img = person.profile_path ? `https://image.tmdb.org/t/p/w200${person.profile_path}` : 'assets/img/no-cast.png';
             div.innerHTML = `
                 <img src="${img}" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid var(--primary-color);">
                 <p style="font-size:10px; margin-top:5px; color:#ccc;">${person.name.split(' ')[0]}</p>
@@ -295,7 +298,7 @@ function showTMDBResults(results) {
     list.innerHTML = '';
     results.forEach(item => {
         const year = item.first_air_date ? item.first_air_date.split('-')[0] : 'N/A';
-        const poster = item.poster_path ? 'https://image.tmdb.org/t/p/w200' + item.poster_path : '../assets/img/no-poster.png';
+        const poster = item.poster_path ? 'https://image.tmdb.org/t/p/w200' + item.poster_path : 'assets/img/no-poster.png';
         const div = document.createElement('div');
         div.className = 'tmdb-item';
         div.innerHTML = `
@@ -456,7 +459,7 @@ window.onclick = function() {
     document.getElementById('bulkDropdown').classList.remove('show');
 }
 </script>
-<?php include 'includes/footer.php'; ?>
+<?php include INCLUDES_PATH . '/footer.php'; ?>
 
 <style>
 /* Admin Form Logic Grid - Fix cramped UI */
